@@ -59,12 +59,12 @@ class UserController {
       const userExists = await User.findOne({ where: { email } });
 
       if (userExists) {
-        return res.status(400).json({ error: 'O usuário ja existe.' });
+        return res.status(400).json({ error: 'Este email ja existe.' });
       }
     }
 
     if (oldPassword && !(await user.checkPassword(oldPassword))) {
-      return res.status(401).json({ error: 'Senha incorreta' });
+      return res.status(401).json({ error: 'Senha incorreta.' });
     }
 
     const { id, name, provider } = await user.update(req.body);
