@@ -45,10 +45,24 @@ class AppointmentController {
       return res.status(400).json({ error: 'Falha na validação' });
     }
 
-    const { provider_id, date } = req.body;
+    // Chekando se o user_id não é ele mesmo
+
+    const checkUser = await User.findOne({
+      where: { id: req.userId, provider: true },
+    });
+
+    if (checkUser) {
+      return res
+        .status(401)
+        .json('Não permitido agendar para o prórpio provider');
+    }
+
     /*
     Checkando se o provider_id, ou seja se o usuario indicado é um prestador de servico (provider=true)
     */
+
+    const { provider_id, date } = req.body;
+
     const isProvider = await User.findOne({
       where: { id: provider_id, provider: true },
     });
