@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import Appointment from '../models/Appointment';
 import User from '../models/User';
@@ -52,15 +52,12 @@ class AppointmentController {
     });
 
     if (checkUser) {
-      return res
-        .status(401)
-        .json('Não permitido agendar para o prórpio provider');
+      return res.status(401).json('Não permitido agendar como provider');
     }
 
     /*
     Checkando se o provider_id, ou seja se o usuario indicado é um prestador de servico (provider=true)
     */
-
     const { provider_id, date } = req.body;
 
     const isProvider = await User.findOne({
@@ -113,6 +110,31 @@ class AppointmentController {
       content: `Novo agendamento de ${user.name} para o ${formattedDate}`,
       user: provider_id,
     });
+
+    return res.json(appointment);
+  }
+
+  async delete(req, res) {
+    const appointment = await Appointment.findByPk(req.params.id);
+
+    if (appointment.user_id !== req.userId) {
+      return res.status(401).json({
+        error: 'Não tem permissão para cancelar este agendamento',
+      });
+    }
+
+    const dateWithSub = subHours(appointment.date, 2);
+
+    if (isBefore(dateWithSub, new Date())) {
+      return res.status(401).json({
+        error:
+          'Você só pode cancelar o agendamento com 2 horas de antecedência.',
+      });
+    }
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
 
     return res.json(appointment);
   }
