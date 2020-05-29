@@ -25,6 +25,7 @@ module.exports = {
     'no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
     'no-unused-expressions': 'off',
     'react/jsx-one-expression-per-line': 'off',
+      "react/prop-types": ["error", { "ignore": ["navigation"] }],
     'react/jsx-props-no-spreading': 'off',
     'import/no-extraneous-dependencies': 'off',
     'global-require': 'off',
