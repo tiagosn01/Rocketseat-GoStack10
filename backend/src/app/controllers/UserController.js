@@ -2,6 +2,8 @@ import * as Yup from 'yup';
 import User from '../models/User';
 import File from '../models/File';
 
+import Cache from '../../lib/Cache';
+
 class UserController {
   async store(req, res) {
     const schema = Yup.object().shape({
@@ -25,6 +27,10 @@ class UserController {
     }
 
     const { id, name, email, provider } = await User.create(req.body);
+
+    if (provider) {
+      Cache.invalidate('providers');
+    }
 
     return res.json({
       id,
